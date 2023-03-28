@@ -28,6 +28,7 @@ public class WelcomeInterface extends JFrame implements ActionListener {
     private JButton sendButton;
     private JButton downloadButton;
     private JButton logoutButton;
+    private JButton closeConvButton;
     private JPanel userPanel;
     private JPanel remoteUserPanel;
     private JList<String> remoteUserJList;
@@ -64,11 +65,9 @@ public class WelcomeInterface extends JFrame implements ActionListener {
         remoteUserPanel.add(remoteUserScrollPane, BorderLayout.CENTER);
         setLogoutButton(new JButton("Disconnection"));
         getLogoutButton().addActionListener(this);
-        getRemoteUserJList().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {if (!e.getValueIsAdjusting()) {changeUser(); }
-            }
-        });
+        
+        
+        
 
         remoteUserPanel.add(getLogoutButton(), BorderLayout.PAGE_END);
 
@@ -81,16 +80,19 @@ public class WelcomeInterface extends JFrame implements ActionListener {
         buttonPanel.add(getMessageField());
 
         setSendButton(new JButton("Send"));
-        getSendButton().addActionListener(this);
         getSendButton().setEnabled(false);
+        getSendButton().addActionListener(this);
         buttonPanel.add(getSendButton());
+        
+        setCloseConvButton(new JButton("Close the current conversation"));
+        getCloseConvButton().setEnabled(false);
+        buttonPanel.add(getCloseConvButton());
 
         setDownloadButton(new JButton("Upload"));
-        getDownloadButton().addActionListener(this);
         getDownloadButton().setEnabled(false);
         buttonPanel.add(getDownloadButton());
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
-
+        addListennerChangeUser() ;
         setContentPane(mainPanel);
         setVisible(true);
     }
@@ -128,7 +130,13 @@ public class WelcomeInterface extends JFrame implements ActionListener {
        
     }
 
-
+    public void addListennerChangeUser() {
+        getRemoteUserJList().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {if (!e.getValueIsAdjusting()) {changeUser(); }
+            }
+        });
+    }
 
     public WelcomeInterface() {
         // Envoyer un message de présentation au serveur pour récupérer la liste des utilisateurs distants
@@ -154,12 +162,6 @@ public class WelcomeInterface extends JFrame implements ActionListener {
         }
     }
 
-    public static void main(String[] args) {
-
-        // Créer l'interface graphique avec la liste des utilisateurs distants
-        final WelcomeInterface welcomeInterface = new WelcomeInterface();
-        welcomeInterface.setVisible(true);
-    }
 
     /**
      * @return the userPanel
@@ -292,6 +294,20 @@ public class WelcomeInterface extends JFrame implements ActionListener {
      */
     public static void setRemoteUserListModel(DefaultListModel<String> remoteUserListModel) {
         WelcomeInterface.remoteUserListModel = remoteUserListModel;
+    }
+
+    /**
+     * @return the closeConvButton
+     */
+    public JButton getCloseConvButton() {
+        return closeConvButton;
+    }
+
+    /**
+     * @param closeConvButton the closeConvButton to set
+     */
+    public void setCloseConvButton(JButton closeConvButton) {
+        this.closeConvButton = closeConvButton;
     }
 
 }

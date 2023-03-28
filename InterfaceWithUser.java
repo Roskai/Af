@@ -11,6 +11,8 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 import javax.swing.JOptionPane;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 public class InterfaceWithUser extends WelcomeInterface implements ActionListener {
     private ChatSystem chatSystem = ChatSystem.getInstance();
@@ -34,6 +36,10 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
         super.getSendButton().setEnabled(true);
         super.getDownloadButton().setEnabled(true);   
         super.getMessageField().setEnabled(true);
+        super.getRemoteUserJList().setEnabled(false);
+        super.getCloseConvButton().setEnabled(true);
+        
+        getCloseConvButton().addActionListener(this);
     }
 
     private void initSocket() {
@@ -58,12 +64,30 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
             sendMessage();
         } else if (e.getSource() == getLogoutButton()) {
             disconnection();
-        } else if (e.getSource() == getRemoteUserJList()) {
-            changeUser();
+        } else if (e.getSource() == getCloseConvButton()) {
+            closeConverstation();
         }
     }
+    
+    private void closeConverstation() {
+        try {
+            String messageFermeture = new String(chatSystem.getUserNickname()+"has left the chat.");
+            getChatArea().append(messageFermeture);
+            out.write(messageFermeture);
+            out.newLine();
+            out.flush();
+            
+            closeSocket();
+           new WelcomeInterface();
+            this.dispose();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+    }
+    
     private void sendMessage() {
-        getChatArea().append("You: "+getMessageField().getText());
+        getChatArea().append("You: "+getMessageField().getText()+"\n");
         try {
             out.write(getMessageField().getText());
             getMessageField().setText("");
@@ -82,7 +106,11 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
         final RemoteUser selectedUser = chatSystem.getRemoteUserByNickname(getRemoteUserJList().getSelectedValue());
         if (selectedUser != null) {
             // Open new window to chat with selected remote user
-            closeSocket();
+            try {
+                closeSocket();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             final InterfaceWithUser interfaceWithUser = new InterfaceWithUser(selectedUser);
             interfaceWithUser.setVisible(true);
             this.dispose();
@@ -91,26 +119,47 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
         }
     }
 
-    private void closeSocket() {
-        try {
-            if (in != null) {
-                in.close();
-            }
-            if (out != null) {
-                out.close();
-            }
-            if (socket != null) {
+    private void closeSocket() throws IOException {
+        if (socket != null) {
+            try {
                 socket.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                throw ex;
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        }
+        if (in != null) {
+            try {
+                in.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                throw ex;
+            }
+        }
+        if (out != null) {
+            try {
+                out.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                throw ex;
+            }
         }
     }
 
+
     @Override
     public void disconnection() {
-        closeSocket();
-        super.disconnection();
+        try {
+            closeSocket();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        // Close ChatInterface window and return to ChatDialog
+        chatSystem.sendGoodbye(chatSystem.getUserNickname());
+        this.dispose();
+        final ConnectionInterface connectionInterface = new ConnectionInterface();
+        connectionInterface.setVisible(true);
     }
 
     private class IncomingReader implements Runnable {
