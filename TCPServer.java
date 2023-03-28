@@ -1,45 +1,61 @@
 package ChatSystem;
 
-import java.io.DataInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class TCPServer {
+public class TCPServer implements Runnable {
+    private final Socket clientSocket;
 
+    public TCPServer(Socket clientSocket) {
+        this.clientSocket = clientSocket;
+    }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
-        // creates of a server socket and binds it to the port number ChatSystem.PORT:
-        final ServerSocket serverSocket = new ServerSocket(ChatSystem.PORT);
+    @Override
+    public void run() {
+        try (
+            BufferedReader inputReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        ) {
+            String inputLine;
+            while ((inputLine = inputReader.readLine()) != null) {
+                System.out.println("Received message from client: " + inputLine);
 
-        //Once a ServerSocket instance is created, call accept() to start listening for incoming client requests:
-        final Socket clientSocket = serverSocket.accept();
+                // Add your business logic here
 
-        // Initial message of our Server 
-        System.out.println("Client Connected");
-
-        // Use to read the data send from the client
-        final DataInputStream serverDataInputStream = new DataInputStream(clientSocket.getInputStream());
-
-        try {
-
-            while (true) {
-                //Read message from the client socket 
-                final String clientMessage = serverDataInputStream.readUTF();
-                System.out.println("client says: " + clientMessage);
-
-                // breaking the infinite loop
-                if (clientMessage.equalsIgnoreCase("exit")) {
+                if (inputLine.equals("exit")) {
                     break;
                 }
             }
-
-        } catch (final IOException e) {
-            // Exceptions to be handle
-            System.out.println(e);
+        } catch (IOException e) {
+            System.err.println("Error handling TCP connection: " + e.getMessage());
         } finally {
-            // Closing the socket. 
-            serverSocket.close();
+            try {
+                clientSocket.close();
+            } catch (IOException e) {
+                System.err.println("Error closing client socket: " + e.getMessage());
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        try (
+            ServerSocket serverSocket = new ServerSocket(ChatSystem.PORT);
+        ) {
+            System.out.println("TCP server started on port " + ChatSystem.PORT);
+
+            while (true) {
+                System.out.println("Waiting for a client to connect...");
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("Client connected: " + clientSocket.getInetAddress());
+
+                TCPServer tcpServer = new TCPServer(clientSocket);
+                Thread tcpServerThread = new Thread(tcpServer);
+                tcpServerThread.start();
+            }
+        } catch (IOException e) {
+            System.err.println("Error starting TCP server: " + e.getMessage());
         }
     }
 }

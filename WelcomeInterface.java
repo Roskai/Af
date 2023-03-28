@@ -21,7 +21,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 public class WelcomeInterface extends JFrame implements ActionListener {
-    private static volatile WelcomeInterface instance = null;
 
     private JTextArea chatArea;
     private JTextField messageField;

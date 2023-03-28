@@ -7,18 +7,13 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ChatNI {
     private DatagramSocket socket;
     private Thread listenerThread;
-    private Map<String, InetAddress> remoteUsers;
+
 
     public ChatNI() {
-        remoteUsers = new ConcurrentHashMap<>();
         try {
             socket = new DatagramSocket(ChatSystem.PORT, InetAddress.getByName("0.0.0.0"));
             listenerThread = new Thread(new Runnable() {
@@ -31,7 +26,7 @@ public class ChatNI {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        TCPServer TCPserver = new TCPServer();
+        TCPServer.main(null);
     }
 
     private void listenForHello() {
@@ -48,7 +43,6 @@ public class ChatNI {
                     String[] parts = message.split(":");
                     if (parts[0].equals("hello")) {
                         String remoteNickname = parts[1];
-                        remoteUsers.put(remoteNickname, address);
                         System.out.println("Received hello from " + remoteNickname + " (" + address.getHostAddress() + ")");
                         // send response
                         String nickname = ChatSystem.getUserNickname();
@@ -83,7 +77,7 @@ public class ChatNI {
             e.printStackTrace();
         }
     }
- 
+
 
 }
 
