@@ -14,11 +14,7 @@ import javax.swing.WindowConstants;
 
 public class ConnectionInterface extends JFrame implements ActionListener {
 
-    private ChatSystem chatSystem = ChatSystem.getInstance();
-
-    public static void main(String[] args) {
-        new ConnectionInterface();
-    }
+    private ChatSystem chatSystem ;
 
     private final JLabel welcomeLabel;
     private final JLabel nicknameLabel;
@@ -37,6 +33,7 @@ public class ConnectionInterface extends JFrame implements ActionListener {
         // Create nickname label and text field
         nicknameLabel = new JLabel("Your nickname");
         nicknameField = new JTextField(20);
+        nicknameField.setText("");
 
         // Create connect button
         connectButton = new JButton("Connection");
@@ -55,6 +52,8 @@ public class ConnectionInterface extends JFrame implements ActionListener {
         setSize(300, 150);
         setLocationRelativeTo(null);
         setVisible(true);
+        chatSystem = ChatSystem.getInstance();
+        
     }
 
     @Override
@@ -87,4 +86,5 @@ public class ConnectionInterface extends JFrame implements ActionListener {
         JOptionPane.showMessageDialog(this, "Please, enter a nickname with no special caracters");
         resetNicknameField();
     }
+
 }

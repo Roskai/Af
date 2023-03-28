@@ -1,39 +1,44 @@
 package ChatSystem;
 
-import java.util.Iterator;
-import java.util.List;
-
 /**
  * This class represents the ChatSystem and implements the Singleton design pattern
  */
 public class ChatSystem {
 
-    private static ChatSystem instance = null;
     public static final int PORT = 10001;
     private static String userNickname;
-    private final ChatNI CNI = new ChatNI();
+    //private  ChatNI CNI;
     private WelcomeInterface welcomeInterface;
 
+
     /**
-     * Constructor is private to implement Singleton pattern
+     *Constructs a new ChatSystem instance. This constructor is private to prevent direct instantiation.
      */
     private ChatSystem() {
+        //CNI = ChatNI.getInstance();
     }
 
     /**
-     * Returns the singleton instance of the ChatSystem class
-     * 
-     * @return the singleton instance of the ChatSystem class
+     * The SingletonHolder class holds a single instance of ChatSystem, created when the class is first loaded.
+     * This ensures that only one instance is created, and that it is thread-safe.
+     */
+    private static class SingletonHolder {
+        private static final ChatSystem INSTANCE = new ChatSystem();
+    }
+
+    
+    /**
+     * Returns the single instance of ChatSystem.
+     * @return the ChatSystem instance
      */
     public static ChatSystem getInstance() {
-        if (instance == null) {
-            synchronized (ChatSystem.class) {
-                if (instance == null) {
-                    instance = new ChatSystem();
-                }
-            }
-        }
-        return instance;
+        System.out.println("CS : "+SingletonHolder.INSTANCE);
+        return SingletonHolder.INSTANCE;
+    }
+
+    
+    public static void main(String[] args) {
+        new ConnectionInterface();   
     }
     /**
      * @return the userNickname
@@ -55,7 +60,7 @@ public class ChatSystem {
      * @param nickname The user's nickname
      */
     public void sendHello(String nickname) {
-        CNI.sendHello(getUserNickname());
+        ChatNI.getInstance().sendHello(getUserNickname());
     }
 
     /**
@@ -63,7 +68,7 @@ public class ChatSystem {
      * @param nickname The user's nickname
      */
     public void sendGoodbye(String nickname) {
-        CNI.sendGoodbye(getUserNickname());
+        ChatNI.getInstance().sendGoodbye(getUserNickname());
     }
 
     /**
@@ -76,7 +81,7 @@ public class ChatSystem {
                 welcomeInterface.addRemoteUserToListModel(remoteUser);
             }
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             System.err.println("WelcomeInterface not initialized yet");
         }
     }
@@ -85,7 +90,6 @@ public class ChatSystem {
      * Returns the remote user with the given nickname
      *
      * @param nickname       The nickname of the remote user to look for
-     * @param remoteUserList The list of remote users to search in
      * @return The remote user with the given nickname, or null if not found
      */
     public RemoteUser getRemoteUserByNickname(String nickname) {
@@ -106,8 +110,6 @@ public class ChatSystem {
         welcomeInterface.setVisible(true);
     }
 
-
-
     /**
      * Checks if a nickname is valid (i.e. consists only of letters and digits)
      *
@@ -115,15 +117,20 @@ public class ChatSystem {
      * @return true if the nickname is valid, false otherwise
      */
     public boolean verificationNickname(String nickname) {
+        System.out.println("Le nickname est \"" + nickname+"\"");
         boolean valid = true;
-        for (int i = 0; i < nickname.length(); i++) {
-            char c = nickname.charAt(i);
-            if (!Character.isLetterOrDigit(c)) {
-                valid = false;
-                break;
+        if (nickname.isBlank()||nickname.isEmpty()) {
+            for (int i = 0; i < nickname.length(); i++) {
+                final char c = nickname.charAt(i);
+                if (!Character.isLetterOrDigit(c)) {
+                    valid = false;
+                    break;
+                }
             }
+            valid=false;
         }
         return valid;
+
     }
 
 }

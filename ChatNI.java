@@ -15,17 +15,35 @@ import java.net.InetAddress;
 public class ChatNI {
     private DatagramSocket socket;
     private Thread listenerThread;
-    private ChatSystem chatSystem = ChatSystem.getInstance();
+    private ChatSystem chatSystem ;
+    private static ChatNI instance;
 
+    /**
+     * Returns the singleton instance of the ChatNI class
+     * 
+     * @return the singleton instance of the ChatNI class
+     */
+    public static ChatNI getInstance() {
+        if (instance == null) {
+            synchronized (ChatNI.class) {
+                if (instance == null) {
+                    instance = new ChatNI();
+                }
+            }
+        }
+        return instance;
+    }
 
     /**
      * Constructor
      *
      * Initializes the socket and starts the thread that will listen for broadcasted messages.
      */
-    public ChatNI() {
+    private ChatNI() {
         try {
+            chatSystem = ChatSystem.getInstance();
             socket = new DatagramSocket(ChatSystem.PORT, InetAddress.getByName("0.0.0.0"));
+            
             listenerThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -49,6 +67,7 @@ public class ChatNI {
      */
 
     private void listenForHello() {
+        System.out.println("Start of listen for hello");
         byte[] buffer = new byte[1024];
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
         while (!socket.isClosed()) {
