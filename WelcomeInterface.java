@@ -22,6 +22,7 @@ import javax.swing.event.ListSelectionListener;
 
 public class WelcomeInterface extends JFrame implements ActionListener {
 
+    private ChatSystem chatSystem = ChatSystem.getInstance();
     private JTextArea chatArea;
     private JTextField messageField;
     private JButton sendButton;
@@ -33,7 +34,7 @@ public class WelcomeInterface extends JFrame implements ActionListener {
     private final List<RemoteUser> remoteUserList;
     private static DefaultListModel<String> remoteUserListModel;
 
- 
+
     private void initInterface() {
 
         setTitle("Chat Interface");
@@ -45,7 +46,7 @@ public class WelcomeInterface extends JFrame implements ActionListener {
 
         setChatArea(new JTextArea());
         getChatArea().setEditable(false);
-        getChatArea().setText("Welcome "+ ChatSystem.getUserNickname() +"\nPlease chose a remote user");
+        getChatArea().setText("Welcome "+ chatSystem.getUserNickname() +"\nPlease chose a remote user");
         final JScrollPane chatScroll = new JScrollPane(getChatArea());
         mainPanel.add(chatScroll, BorderLayout.CENTER);
 
@@ -54,6 +55,7 @@ public class WelcomeInterface extends JFrame implements ActionListener {
         final JLabel remoteUserListLabel = new JLabel("Remote Users connected:");
         remoteUserPanel.add(remoteUserListLabel, BorderLayout.PAGE_START);
         remoteUserListModel = new DefaultListModel<>();
+        
         for (final RemoteUser remoteUser : getRemoteUserList()) {
             remoteUserListModel.addElement(remoteUser.getNickname());
         }
@@ -101,12 +103,13 @@ public class WelcomeInterface extends JFrame implements ActionListener {
         }
     }
 
-    public RemoteUser getRemoteUserByNickname(String nickname, List<RemoteUser> remoteUserList) {
-        return ChatSystem.getRemoteUserByNickname(nickname, remoteUserList);
+    public RemoteUser getRemoteUserByNickname(String nickname) {
+        return chatSystem.getRemoteUserByNickname(nickname);
     }
 
     public void disconnection() {
         // Close ChatInterface window and return to ChatDialog
+        chatSystem.sendGoodbye(chatSystem.getUserNickname());
         this.dispose();
         final ConnectionInterface connectionInterface = new ConnectionInterface();
         connectionInterface.setVisible(true);
@@ -115,19 +118,20 @@ public class WelcomeInterface extends JFrame implements ActionListener {
     public void changeUser() {
         // Get selected remote user from list
 
-        final RemoteUser selectedUser = getRemoteUserByNickname(getRemoteUserJList().getSelectedValue(), getRemoteUserList());
+        final RemoteUser selectedUser = getRemoteUserByNickname(getRemoteUserJList().getSelectedValue());
         if (selectedUser != null) {
             // Open new window to chat with selected remote user
             final InterfaceWithUser interfaceWithUser = new InterfaceWithUser(selectedUser);
             interfaceWithUser.setVisible(true);
             this.dispose();
         }
+       
     }
 
 
 
     public WelcomeInterface() {
-     // Envoyer un message de présentation au serveur pour récupérer la liste des utilisateurs distants
+        // Envoyer un message de présentation au serveur pour récupérer la liste des utilisateurs distants
         this.remoteUserList = RemoteUser.getRemoteUsers();
         initInterface();
     }
@@ -136,9 +140,18 @@ public class WelcomeInterface extends JFrame implements ActionListener {
         JOptionPane.showMessageDialog(this, erreur);
     }
 
-    public static void addRemoteUserToListModel(RemoteUser remoteUser) {
-        //remoteUserListModel= (DefaultListModel<String>) getRemoteUserJList().getModel();
+    public void emptyRemoteUserJList() {
+        getRemoteUserJList().removeAll();
+    }
+    public void addRemoteUserToListModel(RemoteUser remoteUser) {
         remoteUserListModel.addElement(remoteUser.getNickname());
+    }
+
+    public static void removeRemoteUserToListModel(RemoteUser remoteUser) {
+        int index = remoteUserListModel.indexOf(remoteUser.getNickname());
+        if (index >= 0) {
+            remoteUserListModel.removeElementAt(index);
+        }
     }
 
     public static void main(String[] args) {
@@ -251,6 +264,34 @@ public class WelcomeInterface extends JFrame implements ActionListener {
      */
     public List<RemoteUser> getRemoteUserList() {
         return remoteUserList;
+    }
+
+    /**
+     * @return the remoteUserPanel
+     */
+    public JPanel getRemoteUserPanel() {
+        return remoteUserPanel;
+    }
+
+    /**
+     * @param remoteUserPanel the remoteUserPanel to set
+     */
+    public void setRemoteUserPanel(JPanel remoteUserPanel) {
+        this.remoteUserPanel = remoteUserPanel;
+    }
+
+    /**
+     * @return the remoteUserListModel
+     */
+    public static DefaultListModel<String> getRemoteUserListModel() {
+        return remoteUserListModel;
+    }
+
+    /**
+     * @param remoteUserListModel the remoteUserListModel to set
+     */
+    public static void setRemoteUserListModel(DefaultListModel<String> remoteUserListModel) {
+        WelcomeInterface.remoteUserListModel = remoteUserListModel;
     }
 
 }

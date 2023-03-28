@@ -14,10 +14,9 @@ import javax.swing.WindowConstants;
 
 public class ConnectionInterface extends JFrame implements ActionListener {
 
-    private static ChatSystem chatSystem;
+    private ChatSystem chatSystem = ChatSystem.getInstance();
 
     public static void main(String[] args) {
-        chatSystem = new ChatSystem();
         new ConnectionInterface();
     }
 
@@ -36,7 +35,7 @@ public class ConnectionInterface extends JFrame implements ActionListener {
         welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         // Create nickname label and text field
-        nicknameLabel = new JLabel("My nickname");
+        nicknameLabel = new JLabel("Your nickname");
         nicknameField = new JTextField(20);
 
         // Create connect button
@@ -72,9 +71,7 @@ public class ConnectionInterface extends JFrame implements ActionListener {
      * @param
      */
     private void printWelcomeInterface() {
-        chatSystem.sendHello(ChatSystem.getUserNickname());
-        final WelcomeInterface welcomeInterface = new WelcomeInterface();
-        welcomeInterface.setVisible(true);
+        chatSystem.printWelcomeInterface();
         this.dispose();
 
     }

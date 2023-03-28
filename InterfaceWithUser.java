@@ -13,6 +13,7 @@ import java.net.Socket;
 import javax.swing.JOptionPane;
 
 public class InterfaceWithUser extends WelcomeInterface implements ActionListener {
+    private ChatSystem chatSystem = ChatSystem.getInstance();
     private RemoteUser selectedUser;
     private Socket socket;
     private BufferedReader in;
@@ -28,7 +29,7 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
 
     private void initInterface() {
 
-        setTitle("You ("+ ChatSystem.getUserNickname()+") chat with " + selectedUser.getNickname());
+        setTitle("You ("+ chatSystem.getUserNickname()+") chat with " + selectedUser.getNickname());
         setSize(1000, 1000);
         super.getSendButton().setEnabled(true);
         super.getDownloadButton().setEnabled(true);   
@@ -41,11 +42,12 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
             socket = new Socket(selectedUser.getAddress(), ChatSystem.PORT);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));;
-            new Thread(new IncomingReader()).start();
+           
 
         } catch (IOException ex) {
             ex.printStackTrace();
-        }
+        } 
+        new Thread(new IncomingReader()).start();
     }
 
 
@@ -68,11 +70,7 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
             out.newLine();
             out.flush();
 
-        } catch (FileNotFoundException e) {
-
-            e.printStackTrace();
-
-        } catch (IOException e) {
+        }catch (IOException e) {
             JOptionPane.showMessageDialog(this, "IO error. See log.");
             e.printStackTrace();
         }
@@ -81,8 +79,7 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
     @Override
     public void changeUser() {
         // Get selected remote user from list
-
-        final RemoteUser selectedUser = ChatSystem.getRemoteUserByNickname(getRemoteUserJList().getSelectedValue(), getRemoteUserList());
+        final RemoteUser selectedUser = chatSystem.getRemoteUserByNickname(getRemoteUserJList().getSelectedValue());
         if (selectedUser != null) {
             // Open new window to chat with selected remote user
             closeSocket();
@@ -90,44 +87,66 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
             interfaceWithUser.setVisible(true);
             this.dispose();
         } else {
-            JOptionPane.showMessageDialog(this, "Remote user uknow");
+            JOptionPane.showMessageDialog(this, "Remote user unknown");
         }
-
     }
+
     private void closeSocket() {
         try {
-            in.close();
-            out.close();
-            socket.close();
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
+            }
+            if (socket != null) {
+                socket.close();
+            }
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
+
     @Override
     public void disconnection() {
         closeSocket();
-        this.dispose();
-        ConnectionInterface connectionInterface = new ConnectionInterface();
-        connectionInterface.setVisible(true);
+        super.disconnection();
     }
 
     private class IncomingReader implements Runnable {
         /**
          *  A private inner class that implements the Runnable interface and is responsible for     
          *  continuously reading incoming messages from the server and displaying them on the chat area.
-        */
+         */
         public void run() {
             /**
              * Continuously reads incoming messages from the server and displays them on the chat area.
-            */
-            String message;
+             */
             try {
-                while ((message = in.readLine()) != null) {
+                while (!socket.isClosed() && !socket.isInputShutdown()) {
+                    String message = in.readLine();
+                    if (message == null) {
+                        // The connection was closed by the server
+                        break;
+                    }
                     getChatArea().append(selectedUser.getNickname() + ": " + message + "\n");
                 }
             } catch (IOException ex) {
-                ex.printStackTrace();
+                if (!socket.isClosed()) {
+                    // An error occurred while reading data
+                    ex.printStackTrace();
+                }
+            } finally {
+                try {
+                    // Close the socket and streams
+                    in.close();
+                    out.close();
+                    socket.close();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
+
 }

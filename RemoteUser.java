@@ -25,6 +25,9 @@ public class RemoteUser {
         return address;
     }
 
+    public static void removeRemoteUser(RemoteUser remoteUser) {
+        remoteUsers.remove(remoteUser);
+    }
     // Accesseur à la liste des utilisateurs distants
     public static List<RemoteUser> getRemoteUsers() {
         return remoteUsers;

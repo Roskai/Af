@@ -22,7 +22,7 @@ public class TCPServer implements Runnable {
             while ((inputLine = inputReader.readLine()) != null) {
                 System.out.println("Received message from client: " + inputLine);
 
-                // Add your business logic here
+       
 
                 if (inputLine.equals("exit")) {
                     break;
