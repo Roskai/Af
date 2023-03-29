@@ -1,81 +1,55 @@
 package ChatSystem;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
 
-public class ChatServer {
-    ArrayList<PrintWriter> clientList;
+public class ChatServer implements Runnable {
+    private final Socket clientSocket;
+
+    public ChatServer(Socket clientSocket) {
+        this.clientSocket = clientSocket;
+    }
+
+    @Override
+    public void run() {
+        try (BufferedReader inputReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));) {
+            String inputLine;
+            while ((inputLine = inputReader.readLine()) != null) {
+                System.out.println("Received message from client: " + inputLine);
+
+                if (inputLine.equals("exit")) {
+                    break;
+                }
+            }
+        } catch (final IOException e) {
+            System.err.println("Error handling TCP connection: " + e.getMessage());
+        } finally {
+            try {
+                clientSocket.close();
+            } catch (final IOException e) {
+                System.err.println("Error closing client socket: " + e.getMessage());
+            }
+        }
+    }
 
     public static void main(String[] args) {
-        try {
-            new ChatServer().go();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
-    public void go() throws IOException {
-        clientList = new ArrayList<PrintWriter>();
-        ServerSocket serverSock = new ServerSocket(ChatSystem.PORT);
-        try {
-            
+        try (ServerSocket serverSocket = new ServerSocket(ChatSystem.PORT);) {
+            System.out.println("TCP server started on port " + ChatSystem.PORT);
 
             while (true) {
-                Socket clientSocket = serverSock.accept();
-                PrintWriter writer = new PrintWriter(clientSocket.getOutputStream());
-                clientList.add(writer);
+                System.out.println("Waiting for a client to connect...");
+                final Socket clientSocket = serverSocket.accept();
+                System.out.println("Client connected: " + clientSocket.getInetAddress());
 
-                Thread t = new Thread(new ClientHandler(clientSocket));
-                t.start();
+                final ChatServer tcpServer = new ChatServer(clientSocket);
+                final Thread tcpServerThread = new Thread(tcpServer);
+                tcpServerThread.start();
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } finally {
-            serverSock.close();
-        }
-    }
-
-    public void tellEveryone(String message) {
-        Iterator<PrintWriter> it = clientList.iterator();
-
-        while (it.hasNext()) {
-            try {
-                PrintWriter writer = (PrintWriter) it.next();
-                writer.println(message);
-                writer.flush();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-    }
-
-    public class ClientHandler implements Runnable {
-        BufferedReader reader;
-        Socket sock;
-
-        public ClientHandler(Socket clientSocket) {
-            try {
-                sock = clientSocket;
-                InputStreamReader isReader = new InputStreamReader(sock.getInputStream());
-                reader = new BufferedReader(isReader);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-
-        public void run() {
-            String message;
-
-            try {
-                while ((message = reader.readLine()) != null) {
-                    System.out.println("Received: " + message);
-                    tellEveryone(message);
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+        } catch (final IOException e) {
+            System.err.println("Error starting TCP server: " + e.getMessage());
         }
     }
 }

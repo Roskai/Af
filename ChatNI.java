@@ -15,12 +15,12 @@ import java.net.InetAddress;
 public class ChatNI {
     private DatagramSocket socket;
     private Thread listenerThread;
-    private ChatSystem chatSystem ;
+    private ChatSystem chatSystem;
     private static ChatNI instance;
 
     /**
      * Returns the singleton instance of the ChatNI class
-     * 
+     *
      * @return the singleton instance of the ChatNI class
      */
     public static ChatNI getInstance() {
@@ -43,7 +43,7 @@ public class ChatNI {
         try {
             chatSystem = ChatSystem.getInstance();
             socket = new DatagramSocket(ChatSystem.PORT, InetAddress.getByName("0.0.0.0"));
-            
+
             listenerThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -51,7 +51,7 @@ public class ChatNI {
                 }
             });
             listenerThread.start();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
 
@@ -68,48 +68,50 @@ public class ChatNI {
 
     private void listenForHello() {
         System.out.println("Start of listen for hello");
-        byte[] buffer = new byte[1024];
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+        final byte[] buffer = new byte[1024];
+        final DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
         while (!socket.isClosed()) {
             try {
                 socket.receive(packet);
-                String message = new String(packet.getData(), 0, packet.getLength());
-                InetAddress address = packet.getAddress();
-                int port = packet.getPort();
+                final String message = new String(packet.getData(), 0, packet.getLength());
+                final InetAddress address = packet.getAddress();
+                final int port = packet.getPort();
 
                 if (!message.isEmpty()) {
-                    String[] parts = message.split(":");
+                    final String[] parts = message.split(":");
                     if (parts[0].equals("hello")) {
-                        String remoteNickname = parts[1];
-                        System.out.println("Received hello from " + remoteNickname + " (" + address.getHostAddress() + ")");
+                        final String remoteNickname = parts[1];
+                        System.out.println(
+                                "Received hello from " + remoteNickname + " (" + address.getHostAddress() + ")");
                         // send response
-                        String nickname = chatSystem.getUserNickname();
-                        String response = "hello:" + nickname;
-                        byte[] responseBytes = response.getBytes();
-                        DatagramPacket responsePacket = new DatagramPacket(responseBytes, responseBytes.length, address, port);
+                        final String nickname = chatSystem.getUserNickname();
+                        final String response = "hello:" + nickname;
+                        final byte[] responseBytes = response.getBytes();
+                        final DatagramPacket responsePacket = new DatagramPacket(responseBytes, responseBytes.length,
+                                address, port);
                         socket.send(responsePacket);
                         // update remote users list
-                        RemoteUser remoteUser = new RemoteUser(remoteNickname, address);
+                        final RemoteUser remoteUser = new RemoteUser(remoteNickname, address);
                         RemoteUser.getRemoteUsers().add(remoteUser);
                         chatSystem.updateRemoteUserList();
                     } else if (parts[0].equals("goodbye")) {
-                        String remoteNickname = parts[1];
-                        System.out.println("Received goodbye from " + remoteNickname + " (" + address.getHostAddress() + ")");
-                        RemoteUser remoteUser = chatSystem.getRemoteUserByNickname(remoteNickname);
+                        final String remoteNickname = parts[1];
+                        System.out.println(
+                                "Received goodbye from " + remoteNickname + " (" + address.getHostAddress() + ")");
+                        final RemoteUser remoteUser = chatSystem.getRemoteUserByNickname(remoteNickname);
                         if (remoteUser != null) {
                             RemoteUser.getRemoteUsers().remove(remoteUser);
                             chatSystem.updateRemoteUserList();
                         }
                     }
                 }
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 if (!socket.isClosed()) {
                     e.printStackTrace();
                 }
             }
         }
     }
-
 
     /**
      * Method sendHello
@@ -120,17 +122,19 @@ public class ChatNI {
      */
     public void sendHello(String nickname) {
         try {
-            DatagramSocket sendSocket = new DatagramSocket();
+            final DatagramSocket sendSocket = new DatagramSocket();
             sendSocket.setBroadcast(true);
-            String message = "hello:" + nickname;
-            byte[] messageBytes = message.getBytes();
-            DatagramPacket packet = new DatagramPacket(messageBytes, messageBytes.length, InetAddress.getByName("255.255.255.255"), ChatSystem.PORT);
+            final String message = "hello:" + nickname;
+            final byte[] messageBytes = message.getBytes();
+            final DatagramPacket packet = new DatagramPacket(messageBytes, messageBytes.length,
+                    InetAddress.getByName("255.255.255.255"), ChatSystem.PORT);
             sendSocket.send(packet);
             sendSocket.close();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
     }
+
     /**
      * Method sendGoodbye
      *
@@ -140,19 +144,17 @@ public class ChatNI {
      */
     public void sendGoodbye(String nickname) {
         try {
-            DatagramSocket sendSocket = new DatagramSocket();
+            final DatagramSocket sendSocket = new DatagramSocket();
             sendSocket.setBroadcast(true);
-            String message = "goodbye:" + nickname;
-            byte[] messageBytes = message.getBytes();
-            DatagramPacket packet = new DatagramPacket(messageBytes, messageBytes.length, InetAddress.getByName("255.255.255.255"), ChatSystem.PORT);
+            final String message = "goodbye:" + nickname;
+            final byte[] messageBytes = message.getBytes();
+            final DatagramPacket packet = new DatagramPacket(messageBytes, messageBytes.length,
+                    InetAddress.getByName("255.255.255.255"), ChatSystem.PORT);
             sendSocket.send(packet);
             sendSocket.close();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
     }
 
-
-
 }
-

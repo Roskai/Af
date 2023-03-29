@@ -14,7 +14,7 @@ import javax.swing.WindowConstants;
 
 public class ConnectionInterface extends JFrame implements ActionListener {
 
-    private ChatSystem chatSystem ;
+    private final ChatSystem chatSystem;
 
     private final JLabel welcomeLabel;
     private final JLabel nicknameLabel;
@@ -53,7 +53,7 @@ public class ConnectionInterface extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
         setVisible(true);
         chatSystem = ChatSystem.getInstance();
-        
+
     }
 
     @Override
@@ -76,7 +76,7 @@ public class ConnectionInterface extends JFrame implements ActionListener {
     }
 
     /**
-     * 
+     *
      */
     private void resetNicknameField() {
         nicknameField.setText("");

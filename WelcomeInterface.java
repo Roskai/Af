@@ -22,7 +22,7 @@ import javax.swing.event.ListSelectionListener;
 
 public class WelcomeInterface extends JFrame implements ActionListener {
 
-    private ChatSystem chatSystem = ChatSystem.getInstance();
+    private final ChatSystem chatSystem = ChatSystem.getInstance();
     private JTextArea chatArea;
     private JTextField messageField;
     private JButton sendButton;
@@ -35,7 +35,6 @@ public class WelcomeInterface extends JFrame implements ActionListener {
     private final List<RemoteUser> remoteUserList;
     private static DefaultListModel<String> remoteUserListModel;
 
-
     private void initInterface() {
 
         setTitle("Chat Interface");
@@ -47,7 +46,7 @@ public class WelcomeInterface extends JFrame implements ActionListener {
 
         setChatArea(new JTextArea());
         getChatArea().setEditable(false);
-        getChatArea().setText("Welcome "+ chatSystem.getUserNickname() +"\nPlease chose a remote user");
+        getChatArea().setText("Welcome " + chatSystem.getUserNickname() + "\nPlease chose a remote user");
         final JScrollPane chatScroll = new JScrollPane(getChatArea());
         mainPanel.add(chatScroll, BorderLayout.CENTER);
 
@@ -56,7 +55,7 @@ public class WelcomeInterface extends JFrame implements ActionListener {
         final JLabel remoteUserListLabel = new JLabel("Remote Users connected:");
         remoteUserPanel.add(remoteUserListLabel, BorderLayout.PAGE_START);
         remoteUserListModel = new DefaultListModel<>();
-        
+
         for (final RemoteUser remoteUser : getRemoteUserList()) {
             remoteUserListModel.addElement(remoteUser.getNickname());
         }
@@ -65,9 +64,6 @@ public class WelcomeInterface extends JFrame implements ActionListener {
         remoteUserPanel.add(remoteUserScrollPane, BorderLayout.CENTER);
         setLogoutButton(new JButton("Disconnection"));
         getLogoutButton().addActionListener(this);
-        
-        
-        
 
         remoteUserPanel.add(getLogoutButton(), BorderLayout.PAGE_END);
 
@@ -83,7 +79,7 @@ public class WelcomeInterface extends JFrame implements ActionListener {
         getSendButton().setEnabled(false);
         getSendButton().addActionListener(this);
         buttonPanel.add(getSendButton());
-        
+
         setCloseConvButton(new JButton("Close the current conversation"));
         getCloseConvButton().setEnabled(false);
         buttonPanel.add(getCloseConvButton());
@@ -92,7 +88,7 @@ public class WelcomeInterface extends JFrame implements ActionListener {
         getDownloadButton().setEnabled(false);
         buttonPanel.add(getDownloadButton());
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
-        addListennerChangeUser() ;
+        addListennerChangeUser();
         setContentPane(mainPanel);
         setVisible(true);
     }
@@ -127,13 +123,16 @@ public class WelcomeInterface extends JFrame implements ActionListener {
             interfaceWithUser.setVisible(true);
             this.dispose();
         }
-       
+
     }
 
     public void addListennerChangeUser() {
         getRemoteUserJList().addListSelectionListener(new ListSelectionListener() {
             @Override
-            public void valueChanged(ListSelectionEvent e) {if (!e.getValueIsAdjusting()) {changeUser(); }
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    changeUser();
+                }
             }
         });
     }
@@ -151,17 +150,17 @@ public class WelcomeInterface extends JFrame implements ActionListener {
     public void emptyRemoteUserJList() {
         getRemoteUserJList().removeAll();
     }
+
     public void addRemoteUserToListModel(RemoteUser remoteUser) {
         remoteUserListModel.addElement(remoteUser.getNickname());
     }
 
     public static void removeRemoteUserToListModel(RemoteUser remoteUser) {
-        int index = remoteUserListModel.indexOf(remoteUser.getNickname());
+        final int index = remoteUserListModel.indexOf(remoteUser.getNickname());
         if (index >= 0) {
             remoteUserListModel.removeElementAt(index);
         }
     }
-
 
     /**
      * @return the userPanel
