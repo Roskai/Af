@@ -77,7 +77,7 @@ public class ChatSystem {
             welcomeInterface.emptyRemoteUserJList();
             for (final RemoteUser remoteUser : RemoteUser.getRemoteUsers()) {
                 welcomeInterface.addRemoteUserToListModel(remoteUser);
-                System.out.println("Remote user  :"+remoteUser.getNickname()+"is in ! ");
+                System.out.println("Remote user  :"+remoteUser.getNickname()+" is in ! ");
             }
 
         } catch (final Exception e) {
