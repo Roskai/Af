@@ -70,4 +70,14 @@ public class RemoteUser {
     public static List<RemoteUser> getRemoteUsers() {
         return remoteUsers;
     }
+
+    public static List<RemoteUser> getRemoteUsers(RemoteUser remoteUser) {
+        List<RemoteUser> result = new ArrayList<>();
+        for (RemoteUser user : remoteUsers) {
+            if (user.getNickname().equals(remoteUser.getNickname()) && user.getAddress().equals(remoteUser.getAddress())) {
+                result.add(user);
+            }
+        }
+        return result;
+}
 }

@@ -91,6 +91,7 @@ public class WelcomeInterface extends JFrame implements ActionListener {
         addListennerChangeUser();
         setContentPane(mainPanel);
         setVisible(true);
+        chatSystem.updateRemoteUserList();
     }
 
     // Gérer les actions de l'utilisateur
@@ -148,7 +149,7 @@ public class WelcomeInterface extends JFrame implements ActionListener {
     }
 
     public void emptyRemoteUserJList() {
-        getRemoteUserJList().removeAll();
+        getRemoteUserListModel().removeAllElements();
     }
 
     public void addRemoteUserToListModel(RemoteUser remoteUser) {

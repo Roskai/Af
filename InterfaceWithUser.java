@@ -69,19 +69,24 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
     }
 
     private void closeConverstation() {
+        final String messageFermeture = chatSystem.getUserNickname() + "has left the chat.\n";
+        getChatArea().append(messageFermeture);
         try {
-            final String messageFermeture = chatSystem.getUserNickname() + "has left the chat.";
-            getChatArea().append(messageFermeture);
             out.write(messageFermeture);
+            System.out.println("Message fermé");
             out.newLine();
             out.flush();
-
-            closeSocket();
-            new WelcomeInterface();
-            this.dispose();
+           
         } catch (final IOException e) {
             e.printStackTrace();
         }
+        try {
+            closeSocket();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        new WelcomeInterface();
+        this.dispose();
 
     }
 

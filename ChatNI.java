@@ -83,24 +83,28 @@ public class ChatNI {
                         final String remoteNickname = parts[1];
                         System.out.println(
                                 "Received hello from " + remoteNickname + " (" + address.getHostAddress() + ")");
-                        // send response
-                        final String nickname = chatSystem.getUserNickname();
-                        final String response = "hello:" + nickname;
-                        final byte[] responseBytes = response.getBytes();
-                        final DatagramPacket responsePacket = new DatagramPacket(responseBytes, responseBytes.length,
-                                address, port);
-                        socket.send(responsePacket);
+
                         // update remote users list
-                        final RemoteUser remoteUser = new RemoteUser(remoteNickname, address);
-                        RemoteUser.getRemoteUsers().add(remoteUser);
-                        chatSystem.updateRemoteUserList();
+                        if (!RemoteUser.getRemoteUsers().contains(chatSystem.getRemoteUserByNickname(remoteNickname))) {
+                            final RemoteUser remoteUser = new RemoteUser(remoteNickname, address);
+                            chatSystem.updateRemoteUserList();
+                        }
+                         // send response
+                            final String nickname = chatSystem.getUserNickname();
+                            final String response = "hello:" + nickname;
+                            final byte[] responseBytes = response.getBytes();
+                            final DatagramPacket responsePacket = new DatagramPacket(responseBytes, responseBytes.length,
+                                    address, port);
+                            socket.send(responsePacket);
+
+                        
                     } else if (parts[0].equals("goodbye")) {
                         final String remoteNickname = parts[1];
                         System.out.println(
                                 "Received goodbye from " + remoteNickname + " (" + address.getHostAddress() + ")");
                         final RemoteUser remoteUser = chatSystem.getRemoteUserByNickname(remoteNickname);
                         if (remoteUser != null) {
-                            RemoteUser.getRemoteUsers().remove(remoteUser);
+                            RemoteUser.getRemoteUsers().removeAll(RemoteUser.getRemoteUsers(remoteUser));
                             chatSystem.updateRemoteUserList();
                         }
                     }
@@ -112,6 +116,8 @@ public class ChatNI {
             }
         }
     }
+
+
 
     /**
      * Method sendHello

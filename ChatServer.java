@@ -43,7 +43,6 @@ public class ChatServer implements Runnable {
                 System.out.println("Waiting for a client to connect...");
                 final Socket clientSocket = serverSocket.accept();
                 System.out.println("Client connected: " + clientSocket.getInetAddress());
-
                 final ChatServer tcpServer = new ChatServer(clientSocket);
                 final Thread tcpServerThread = new Thread(tcpServer);
                 tcpServerThread.start();
