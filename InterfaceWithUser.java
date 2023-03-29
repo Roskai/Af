@@ -48,6 +48,7 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
             socket = new Socket(selectedUser.getAddress(), ChatSystem.PORT);
             System.out.println("Connecté à "+selectedUser.getAddress());
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            System.out.println("socket"+socket);
             out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
         } catch (final IOException ex) {
@@ -65,7 +66,7 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
         } else if (e.getSource() == getCloseConvButton()) {
             closeConverstation();
         } else if (e.getSource() == getDownloadButton()) {
-            sendFile();
+            System.out.println("TODO");
         }
     }
 
@@ -105,50 +106,6 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
         }
     }
 
-    private File selectFile() {
-        final JFileChooser fileChooser = new JFileChooser();
-        final int returnValue = fileChooser.showOpenDialog(this);
-        if (returnValue == JFileChooser.APPROVE_OPTION) {
-            return fileChooser.getSelectedFile();
-        } else {
-            return null;
-        }
-    }
-
-    private void sendFile() {
-        final File fileToSend = selectFile();
-
-        try {
-            // Ouverture du flux d'entrée pour lire le fichier
-            final FileInputStream fileInputStream = new FileInputStream(fileToSend);
-
-            // Envoi du préfixe "FILE:" pour signaler que c'est un fichier
-            out.write("FILE:");
-
-            // Lecture du fichier et envoi des données
-            final byte[] buffer = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = fileInputStream.read(buffer)) != -1) {
-                out.write(new String(buffer, 0, bytesRead));
-            }
-
-            // Fermeture du flux d'entrée
-            fileInputStream.close();
-
-            // Envoi d'une ligne vide pour signaler la fin du fichier
-            out.newLine();
-            out.flush();
-
-            // Affichage d'un message de succès
-            JOptionPane.showMessageDialog(this, "The file was sent successfully.");
-            getChatArea().append("You have uploaded a file.");
-
-        } catch (final IOException e) {
-            // Affichage d'un message d'erreur en cas de problème
-            JOptionPane.showMessageDialog(this, "An error occurred while sending the file. Please try again.");
-            e.printStackTrace();
-        }
-    }
 
     @Override
     public void changeUser() {
@@ -216,34 +173,7 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
          *  A private inner class that implements the Runnable interface and is responsible for
          *  continuously reading incoming messages from the server and displaying them on the chat area.
          */
-        private void receiveFile() {
-            /*
-            try {
-            // Lecture des données envoyées par le client
-            String line;
-            StringBuilder stringBuilder = new StringBuilder();
-            while ((line = in.readLine()) != null && !line.isEmpty()) {
-            stringBuilder.append(line);
-            }
-            byte[] data = stringBuilder.toString().getBytes();
 
-
-            // Ecriture des données dans un fichier local
-            JFileChooser fileChooser = new JFileChooser();
-            int returnValue = fileChooser.showOpenDialog(this);
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
-            FileOutputStream fileOutputStream = new FileOutputStream(file);
-            fileOutputStream.write(data);
-            fileOutputStream.close();
-            JOptionPane.showInputDialog(this, "Le fichier a été reçu avec succès.");
-            }
-
-            } catch (IOException e) {
-            JOptionPane.showInputDialog(this, "Une erreur est survenue lors de la réception du fichier. Veuillez réessayer.");
-            e.printStackTrace();
-            }
-            */}
 
         @Override
         public void run() {
@@ -251,22 +181,15 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
              * Continuously reads incoming messages from the server and displays them on the chat area.
              */
             try {
-                while (!socket.isClosed() && !socket.isInputShutdown()) {
-                    final String message = in.readLine();
+                System.out.println("In run");
+                while (true ) {
+                    System.out.println("In run while");
+                    String message = in.readLine();
                     System.out.println(message);
-                    if (message == null) {
-                        // The connection was closed by the server
-                        break;
-                    }
-                    if (message.startsWith("FILE:")) {
-                        // The message contains a file
-                        receiveFile();
-                    } else {
                         // The message contains a regular chat message
                         getChatArea().append(selectedUser.getNickname() + ": " + message + "\n");
                     }
-                }
-            } catch (final IOException ex) {
+            }catch (final IOException ex) {
                 if (!socket.isClosed()) {
                     // An error occurred while reading data
                     ex.printStackTrace();
