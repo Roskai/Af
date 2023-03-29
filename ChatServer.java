@@ -28,7 +28,7 @@ public class ChatServer implements Runnable {
             System.err.println("Error handling TCP connection: " + e.getMessage());
         } finally {
             try {
-                clientSocket.close();
+                InterfaceWithUser.getSocket().close();
             } catch (final IOException e) {
                 System.err.println("Error closing client socket: " + e.getMessage());
             }
@@ -41,9 +41,9 @@ public class ChatServer implements Runnable {
 
             while (true) {
                 System.out.println("Waiting for a client to connect...");
-                final Socket clientSocket = serverSocket.accept();
-                System.out.println("Client connected: " + clientSocket.getInetAddress());
-                final ChatServer tcpServer = new ChatServer(clientSocket);
+                InterfaceWithUser.setSocket(serverSocket.accept());
+                System.out.println("Client connected: " + InterfaceWithUser.getSocket().getInetAddress());
+                final ChatServer tcpServer = new ChatServer(InterfaceWithUser.getSocket());
                 final Thread tcpServerThread = new Thread(tcpServer);
                 tcpServerThread.start();
             }

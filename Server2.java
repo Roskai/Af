@@ -42,7 +42,7 @@ public class Server2 implements Runnable {
 
             while (true) {
                 System.out.println("Waiting for a client to connect...");
-                final Socket clientSocket = serverSocket.accept();
+                InterfaceWithUser.getSocket() = serverSocket.accept();
                 System.out.println("Client connected: " + clientSocket.getInetAddress());
                 final Server2 tcpServer = new Server2(clientSocket);
                 //final Thread tcpServerThread = new Thread(tcpServer);

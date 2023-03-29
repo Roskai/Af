@@ -17,7 +17,7 @@ import javax.swing.JOptionPane;
 public class InterfaceWithUser extends WelcomeInterface implements ActionListener {
     private final ChatSystem chatSystem = ChatSystem.getInstance();
     private final RemoteUser selectedUser;
-    private Socket socket;
+    private static Socket socket;
     private BufferedReader in;
     private BufferedWriter out;
 
@@ -47,9 +47,18 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
 
             socket = new Socket(selectedUser.getAddress(), ChatSystem.PORT);
             System.out.println("Connecté à "+selectedUser.getAddress());
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            System.out.println("socket"+socket);
-            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            if (socket.isConnected()) {
+                // la socket est connectée au serveur, on peut lire les données
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                System.out.println("socket"+socket);
+                out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                // lire les données depuis le flux d'entrée
+            } else {
+                // la socket n'est pas connectée au serveur
+                System.out.println("La socket n'est pas connectée au serveur");
+            }
+
+            
 
         } catch (final IOException ex) {
             ex.printStackTrace();
@@ -184,6 +193,8 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
                 System.out.println("In run");
                 while (true ) {
                     System.out.println("In run while");
+                    System.out.println(in);
+                    System.out.println(in.read());
                     String message = in.readLine();
                     System.out.println(message);
                         // The message contains a regular chat message
@@ -203,6 +214,20 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
                 }
             }
         }
+    }
+
+    /**
+     * @return the socket
+     */
+    public static Socket getSocket() {
+        return socket;
+    }
+
+    /**
+     * @param socket the socket to set
+     */
+    public static void setSocket(Socket socket) {
+        InterfaceWithUser.socket = socket;
     }
 
 }
