@@ -220,7 +220,7 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
          *  A private inner class that implements the Runnable interface and is responsible for     
          *  continuously reading incoming messages from the server and displaying them on the chat area.
          */
-        private void receiveFile(){
+        private void receiveFile(){/*
             try {
                 // Lecture des données envoyées par le client
                 String line;
@@ -229,6 +229,7 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
                     stringBuilder.append(line);
                 }
                 byte[] data = stringBuilder.toString().getBytes();
+
 
                 // Ecriture des données dans un fichier local
                 JFileChooser fileChooser = new JFileChooser();
@@ -245,7 +246,7 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
                 JOptionPane.showInputDialog(this, "Une erreur est survenue lors de la réception du fichier. Veuillez réessayer.");
                 e.printStackTrace();
             }
-        }
+        */}
 
         public void run() {
             /**
@@ -260,7 +261,7 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
                     }
                     if (message.startsWith("FILE:")) {
                         // The message contains a file
-                        receiveFile(in);
+                        receiveFile();
                     } else {
                         // The message contains a regular chat message
                         getChatArea().append(selectedUser.getNickname() + ": " + message + "\n");
