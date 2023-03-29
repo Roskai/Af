@@ -46,6 +46,7 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
         try {
 
             socket = new Socket(selectedUser.getAddress(), ChatSystem.PORT);
+            System.out.println("Connecté à "+selectedUser.getAddress());
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
@@ -252,6 +253,7 @@ public class InterfaceWithUser extends WelcomeInterface implements ActionListene
             try {
                 while (!socket.isClosed() && !socket.isInputShutdown()) {
                     final String message = in.readLine();
+                    System.out.println(message);
                     if (message == null) {
                         // The connection was closed by the server
                         break;

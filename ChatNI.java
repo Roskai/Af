@@ -85,10 +85,10 @@ public class ChatNI {
                                 "Received hello from " + remoteNickname + " (" + address.getHostAddress() + ")");
 
                         // update remote users list
-                        if (!RemoteUser.getRemoteUsers().contains(chatSystem.getRemoteUserByNickname(remoteNickname))) {
+                        
                             final RemoteUser remoteUser = new RemoteUser(remoteNickname, address);
                             chatSystem.updateRemoteUserList();
-                        }
+                       
                          // send response
                             final String nickname = chatSystem.getUserNickname();
                             final String response = "hello:" + nickname;
